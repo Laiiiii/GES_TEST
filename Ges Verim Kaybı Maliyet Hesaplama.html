@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GES Verim Kaybı Maliyet Hesaplama</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 600px;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+        input[type="number"] {
+            width: calc(100% - 16px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+            color: #333; /* Yazı rengi */
+        }
+        input::placeholder {
+            color: #aaa; /* Soluk renk */
+            font-style: italic;
+        }
+        button {
+            padding: 12px 20px;
+            background-color: #003087; /* Lacivert */
+            color: #ffffff; /* Beyaz */
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #002266;
+        }
+        #sonuc {
+            margin-top: 30px;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 4px;
+            border: 1px solid #eee;
+            display: none;
+        }
+        h3 {
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            color: #333;
+        }
+        tbody tr:nth-child(even) {
+            background-color: #f8f8f8;
+        }
+        .kur-bilgisi {
+            font-size: 0.9em;
+            color: #777;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>GES Verim Kaybı Maliyet Hesaplama</h2>
+        <label for="gesGucu">GES Gücü (kW):</label>
+        <input type="number" id="gesGucu" value="" placeholder="Örneğin 1000 kW">
+
+        <button onclick="hesapla()">Hesapla</button>
+
+        <div id="sonuc" style="display: none;">
+            <h3>Verim Kaybı Maliyetleri</h3>
+            <table id="sonucTablosu">
+                <thead>
+                    <tr>
+                        <th>Verim Kaybı (%)</th>
+                        <th>Yıllık Kayıp Miktarı (kWh)</th>
+                        <th>Yıllık Kaybın Maliyeti (TL)</th>
+                        <th>Yıllık Kaybın Maliyeti (USD)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+        </div>
+
+        <p class="kur-bilgisi">Güncel Dolar/TL Kuru: 38,02 TL (Bu kur anlık değişebilir.)</p>
+    </div>
+
+    <script>
+        const guncelKur = 38.02;
+        const yillikUretimMW = 1700000; // 1 mW (1000 kW) için yıllık üretim (kWh)
+        const elektrikSatisFiyati = 2; // TL/kWh
+        const verimKayiplari = [5, 10, 15, 20, 25];
+        const sonucTablosuTBody = document.getElementById("sonucTablosu").getElementsByTagName('tbody')[0];
+        const sonucDiv = document.getElementById("sonuc");
+
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        }
+
+        function hesapla() {
+            const gesGucu = parseFloat(document.getElementById("gesGucu").value);
+            sonucTablosuTBody.innerHTML = ""; // Önceki sonuçları temizle
+            sonucDiv.style.display = "block"; // Sonuç div'ini görünür yap
+
+            verimKayiplari.forEach(kayipOrani => {
+                const yillikUretimkW = (gesGucu / 1000) * yillikUretimMW;
+                const kayipMiktari = yillikUretimkW * (kayipOrani / 100);
+                const maliyetTL = kayipMiktari * elektrikSatisFiyati;
+                const maliyetUSD = maliyetTL / guncelKur;
+
+                const newRow = sonucTablosuTBody.insertRow();
+                const kayipOraniCell = newRow.insertCell();
+                const kayipMiktariCell = newRow.insertCell();
+                const maliyetTLCell = newRow.insertCell();
+                const maliyetUSDCell = newRow.insertCell();
+
+                kayipOraniCell.textContent = kayipOrani + "%";
+                kayipMiktariCell.textContent = "≈ " + formatNumber(kayipMiktari.toFixed(0));
+                maliyetTLCell.textContent = "≈ " + formatNumber(maliyetTL.toFixed(2)).replace('.', ',');
+                maliyetUSDCell.textContent = "≈ " + formatNumber(maliyetUSD.toFixed(2)).replace('.', ',');
+            });
+        }
+    </script>
+</body>
+</html>
