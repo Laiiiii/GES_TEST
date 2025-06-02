@@ -183,7 +183,7 @@
       .catch(err => {
         console.warn("Kur alınamadı, sabit değer kullanılacak:", err);
         guncelKur = fallbackKur;
-        kurBilgisiP.textContent = `Güncel Dolar/TL Kuru: 38,02 TL (API çalışmadığı için varsayılan kur kullanıldı.)`;
+        kurBilgisiP.textContent = `Güncel Dolar/TL Kuru: 38,02 TL (Varsayılan kur kullanıldı.)`;
       })
       .finally(() => {
         hesaplaBtn.disabled = false;
