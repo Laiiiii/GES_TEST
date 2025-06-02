@@ -160,11 +160,9 @@
         newRow.insertCell().textContent = "≈ " + formatNumber(maliyetUSD.toFixed(2)).replace('.', ',');
       });
     }
-    // Kur bilgisi elemanını yakala
-        const kurBilgisiP = document.querySelector('.kur-bilgisi');
 
-    // Kur bilgisini otomatik çek
-     fetch('https://api.exchangerate.host/latest?base=USD&symbols=TRY')
+    // Kur bilgisini otomatik çek (access_key istemeyen doğru API ile)
+    fetch('https://api.exchangerate.host/latest?base=USD&symbols=TRY')
       .then(res => res.json())
       .then(data => {
         const kurDegeri = data.rates?.TRY;
@@ -173,12 +171,11 @@
         guncelKur = kurDegeri;
         const kurText = guncelKur.toFixed(2).replace('.', ',');
         kurBilgisiP.textContent = `Güncel Dolar/TL Kuru: ${kurText} TL (Bu kur anlık değişebilir.)`;
-    })
+      })
       .catch(err => {
         console.error("Kur bilgisi alınamadı:", err);
         kurBilgisiP.textContent = `Güncel Dolar/TL Kuru: Bilgi alınamadı`;
-    });
-
+      });
   </script>
 </body>
 </html>
