@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GES Verim Kaybı Maliyet Hesaplama</title>
-    <style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GES Verim Kaybı Maliyet Hesaplama</title>
+  <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f4f4;
@@ -101,67 +101,78 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>GES Verim Kaybı Maliyet Hesaplama</h2>
-        <label for="gesGucu">GES Gücü (kW):</label>
-        <input type="number" id="gesGucu" value="" placeholder="Örneğin 1000 kW">
+  <div class="container">
+    <h2>GES Verim Kaybı Maliyet Hesaplama</h2>
+    <label for="gesGucu">GES Gücü (kW):</label>
+    <input type="number" id="gesGucu" placeholder="Örneğin 1000 kW" />
 
-        <button onclick="hesapla()">Hesapla</button>
+    <button onclick="hesapla()">Hesapla</button>
 
-        <div id="sonuc" style="display: none;">
-            <h3>Verim Kaybı Maliyetleri</h3>
-            <table id="sonucTablosu">
-                <thead>
-                    <tr>
-                        <th>Verim Kaybı (%)</th>
-                        <th>Yıllık Kayıp Miktarı (kWh)</th>
-                        <th>Yıllık Kaybın Maliyeti (TL)</th>
-                        <th>Yıllık Kaybın Maliyeti (USD)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    </tbody>
-            </table>
-        </div>
-
-        <p class="kur-bilgisi">Güncel Dolar/TL Kuru: 38,02 TL (Bu kur anlık değişebilir.)</p>
+    <div id="sonuc" style="display: none;">
+      <h3>Verim Kaybı Maliyetleri</h3>
+      <table id="sonucTablosu">
+        <thead>
+          <tr>
+            <th>Verim Kaybı (%)</th>
+            <th>Yıllık Kayıp Miktarı (kWh)</th>
+            <th>Yıllık Kaybın Maliyeti (TL)</th>
+            <th>Yıllık Kaybın Maliyeti (USD)</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
 
-    <script>
-        const guncelKur = 38.02;
-        const yillikUretimMW = 1700000; // 1 mW (1000 kW) için yıllık üretim (kWh)
-        const elektrikSatisFiyati = 2; // TL/kWh
-        const verimKayiplari = [5, 10, 15, 20, 25];
-        const sonucTablosuTBody = document.getElementById("sonucTablosu").getElementsByTagName('tbody')[0];
-        const sonucDiv = document.getElementById("sonuc");
+    <p class="kur-bilgisi">Güncel Dolar/TL Kuru: yükleniyor... (Bu kur anlık değişebilir.)</p>
+  </div>
 
-        function formatNumber(num) {
-            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        }
+  <script>
+    let guncelKur = 38.02; // Varsayılan (internet olmazsa)
 
-        function hesapla() {
-            const gesGucu = parseFloat(document.getElementById("gesGucu").value);
-            sonucTablosuTBody.innerHTML = ""; // Önceki sonuçları temizle
-            sonucDiv.style.display = "block"; // Sonuç div'ini görünür yap
+    const yillikUretimMW = 1700000; // 1 mW (1000 kW) için yıllık üretim (kWh)
+    const elektrikSatisFiyati = 2; // TL/kWh
+    const verimKayiplari = [5, 10, 15, 20, 25];
+    const sonucTablosuTBody = document.getElementById("sonucTablosu").getElementsByTagName('tbody')[0];
+    const sonucDiv = document.getElementById("sonuc");
+    const kurBilgisiP = document.querySelector('.kur-bilgisi');
 
-            verimKayiplari.forEach(kayipOrani => {
-                const yillikUretimkW = (gesGucu / 1000) * yillikUretimMW;
-                const kayipMiktari = yillikUretimkW * (kayipOrani / 100);
-                const maliyetTL = kayipMiktari * elektrikSatisFiyati;
-                const maliyetUSD = maliyetTL / guncelKur;
+    function formatNumber(num) {
+      return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
 
-                const newRow = sonucTablosuTBody.insertRow();
-                const kayipOraniCell = newRow.insertCell();
-                const kayipMiktariCell = newRow.insertCell();
-                const maliyetTLCell = newRow.insertCell();
-                const maliyetUSDCell = newRow.insertCell();
+    function hesapla() {
+      const gesGucu = parseFloat(document.getElementById("gesGucu").value);
+      if (isNaN(gesGucu) || gesGucu <= 0) return alert("Lütfen geçerli bir GES gücü girin.");
 
-                kayipOraniCell.textContent = kayipOrani + "%";
-                kayipMiktariCell.textContent = "≈ " + formatNumber(kayipMiktari.toFixed(0));
-                maliyetTLCell.textContent = "≈ " + formatNumber(maliyetTL.toFixed(2)).replace('.', ',');
-                maliyetUSDCell.textContent = "≈ " + formatNumber(maliyetUSD.toFixed(2)).replace('.', ',');
-            });
-        }
-    </script>
+      sonucTablosuTBody.innerHTML = "";
+      sonucDiv.style.display = "block";
+
+      verimKayiplari.forEach(kayipOrani => {
+        const yillikUretimkW = (gesGucu / 1000) * yillikUretimMW;
+        const kayipMiktari = yillikUretimkW * (kayipOrani / 100);
+        const maliyetTL = kayipMiktari * elektrikSatisFiyati;
+        const maliyetUSD = maliyetTL / guncelKur;
+
+        const newRow = sonucTablosuTBody.insertRow();
+        newRow.insertCell().textContent = kayipOrani + "%";
+        newRow.insertCell().textContent = "≈ " + formatNumber(kayipMiktari.toFixed(0));
+        newRow.insertCell().textContent = "≈ " + formatNumber(maliyetTL.toFixed(2)).replace('.', ',');
+        newRow.insertCell().textContent = "≈ " + formatNumber(maliyetUSD.toFixed(2)).replace('.', ',');
+      });
+    }
+
+    // Kur bilgisini otomatik çek
+    fetch('https://api.exchangerate.host/latest?base=USD&symbols=TRY')
+      .then(res => res.json())
+      .then(data => {
+        guncelKur = data.rates.TRY;
+        const kurText = guncelKur.toFixed(2).replace('.', ',');
+        kurBilgisiP.textContent = `Güncel Dolar/TL Kuru: ${kurText} TL (Bu kur anlık değişebilir.)`;
+      })
+      .catch(err => {
+        kurBilgisiP.textContent = `Güncel Dolar/TL Kuru: ${guncelKur.toFixed(2).replace('.', ',')} TL (Kur bilgisi alınamadı, varsayılan değer kullanıldı.)`;
+        console.error("Kur bilgisi alınamadı:", err);
+      });
+  </script>
 </body>
 </html>
