@@ -127,7 +127,7 @@
   </div>
 
   <script>
-    let guncelKur = 38.02; // Varsayılan kur değeri
+    let guncelKur = 38.02; // Varsayılan kur değeri (fallback)
 
     const yillikUretimMW = 1700000; // 1 mW (1000 kW) için yıllık üretim (kWh)
     const elektrikSatisFiyati = 2; // TL/kWh
@@ -161,20 +161,21 @@
       });
     }
 
-    // Kur bilgisini otomatik çek
-    fetch('https://api.exchangerate.host/latest?base=USD&symbols=TRY')
+    // Kur bilgisini Frankfurter API ile çek
+    fetch('https://api.frankfurter.app/latest?from=USD&to=TRY')
       .then(res => res.json())
       .then(data => {
-        const kurDegeri = data.rates?.TRY;
-        if (!kurDegeri) throw new Error("Kur verisi yok");
+        if (!data || !data.rates || !data.rates.TRY) {
+          throw new Error("Kur verisi yok");
+        }
 
-        guncelKur = kurDegeri;
+        guncelKur = data.rates.TRY;
         const kurText = guncelKur.toFixed(2).replace('.', ',');
         kurBilgisiP.textContent = `Güncel Dolar/TL Kuru: ${kurText} TL (Bu kur anlık değişebilir.)`;
       })
       .catch(err => {
-        console.error("Kur bilgisi alınamadı:", err);
-        kurBilgisiP.textContent = `Güncel Dolar/TL Kuru: 38,02 TL (API erişilemediği için varsayılan kur kullanıldı.)`;
+        console.warn("Kur alınamadı, sabit kur kullanılacak:", err);
+        kurBilgisiP.textContent = `Güncel Dolar/TL Kuru: 38,02 TL (Varsayılan kur kullanıldı.)`;
       });
   </script>
 </body>
