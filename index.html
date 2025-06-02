@@ -41,16 +41,16 @@
             border-radius: 4px;
             box-sizing: border-box;
             font-size: 16px;
-            color: #333; /* Yazı rengi */
+            color: #333;
         }
         input::placeholder {
-            color: #aaa; /* Soluk renk */
+            color: #aaa;
             font-style: italic;
         }
         button {
             padding: 12px 20px;
-            background-color: #003087; /* Lacivert */
-            color: #ffffff; /* Beyaz */
+            background-color: #003087;
+            color: #ffffff;
             border: none;
             border-radius: 4px;
             cursor: pointer;
@@ -127,7 +127,7 @@
   </div>
 
   <script>
-    let guncelKur = 38.02; // Varsayılan (internet olmazsa)
+    let guncelKur = 38.02; // Varsayılan kur değeri
 
     const yillikUretimMW = 1700000; // 1 mW (1000 kW) için yıllık üretim (kWh)
     const elektrikSatisFiyati = 2; // TL/kWh
@@ -161,7 +161,7 @@
       });
     }
 
-    // Kur bilgisini otomatik çek (access_key istemeyen doğru API ile)
+    // Kur bilgisini otomatik çek
     fetch('https://api.exchangerate.host/latest?base=USD&symbols=TRY')
       .then(res => res.json())
       .then(data => {
@@ -174,7 +174,7 @@
       })
       .catch(err => {
         console.error("Kur bilgisi alınamadı:", err);
-        kurBilgisiP.textContent = `Güncel Dolar/TL Kuru: Bilgi alınamadı`;
+        kurBilgisiP.textContent = `Güncel Dolar/TL Kuru: 38,02 TL (API erişilemediği için varsayılan kur kullanıldı.)`;
       });
   </script>
 </body>
