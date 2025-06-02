@@ -106,7 +106,7 @@
     <label for="gesGucu">GES Gücü (kW):</label>
     <input type="number" id="gesGucu" placeholder="Örneğin 1000 kW" />
 
-    <button onclick="hesapla()">Hesapla</button>
+    <button id="hesaplaBtn" onclick="hesapla()" disabled>Hesapla</button>
 
     <div id="sonuc" style="display: none;">
       <h3>Verim Kaybı Maliyetleri</h3>
@@ -127,20 +127,27 @@
   </div>
 
   <script>
-    let guncelKur = 38.02; // Varsayılan kur değeri (fallback)
+    let guncelKur = null;
+    const fallbackKur = 38.02;
 
-    const yillikUretimMW = 1700000; // 1 mW (1000 kW) için yıllık üretim (kWh)
-    const elektrikSatisFiyati = 2; // TL/kWh
+    const yillikUretimMW = 1700000;
+    const elektrikSatisFiyati = 2;
     const verimKayiplari = [5, 10, 15, 20, 25];
     const sonucTablosuTBody = document.getElementById("sonucTablosu").getElementsByTagName('tbody')[0];
     const sonucDiv = document.getElementById("sonuc");
     const kurBilgisiP = document.querySelector('.kur-bilgisi');
+    const hesaplaBtn = document.getElementById("hesaplaBtn");
 
     function formatNumber(num) {
       return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     }
 
     function hesapla() {
+      if (!guncelKur || isNaN(guncelKur)) {
+        alert("Kur verisi henüz yüklenemedi. Lütfen birkaç saniye içinde tekrar deneyin.");
+        return;
+      }
+
       const gesGucu = parseFloat(document.getElementById("gesGucu").value);
       if (isNaN(gesGucu) || gesGucu <= 0) return alert("Lütfen geçerli bir GES gücü girin.");
 
@@ -161,21 +168,25 @@
       });
     }
 
-    // Kur bilgisini Frankfurter API ile çek
+    // Kur verisini Frankfurter API'den al
     fetch('https://api.frankfurter.app/latest?from=USD&to=TRY')
       .then(res => res.json())
       .then(data => {
-        if (!data || !data.rates || !data.rates.TRY) {
-          throw new Error("Kur verisi yok");
+        if (data?.rates?.TRY) {
+          guncelKur = data.rates.TRY;
+          const kurText = guncelKur.toFixed(2).replace('.', ',');
+          kurBilgisiP.textContent = `Güncel Dolar/TL Kuru: ${kurText} TL (Bu kur anlık değişebilir.)`;
+        } else {
+          throw new Error("Geçersiz veri");
         }
-
-        guncelKur = data.rates.TRY;
-        const kurText = guncelKur.toFixed(2).replace('.', ',');
-        kurBilgisiP.textContent = `Güncel Dolar/TL Kuru: ${kurText} TL (Bu kur anlık değişebilir.)`;
       })
       .catch(err => {
-        console.warn("Kur alınamadı, sabit kur kullanılacak:", err);
-        kurBilgisiP.textContent = `Güncel Dolar/TL Kuru: 38,02 TL (Varsayılan kur kullanıldı.)`;
+        console.warn("Kur alınamadı, sabit değer kullanılacak:", err);
+        guncelKur = fallbackKur;
+        kurBilgisiP.textContent = `Güncel Dolar/TL Kuru: 38,02 TL (API çalışmadığı için varsayılan kur kullanıldı.)`;
+      })
+      .finally(() => {
+        hesaplaBtn.disabled = false;
       });
   </script>
 </body>
